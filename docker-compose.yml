@@ -1,0 +1,42 @@
+services:
+  backend:
+    build: 
+      context: ./app/backend
+    restart: unless-stopped
+    volumes:
+      - ./uploads:/app/uploads
+      - ./app/backend/app:/app/app
+    environment:
+      - DATABASE_URL=sqlite:////app/uploads/cutesite.db
+      - UPLOAD_IMAGES_DIR=${UPLOAD_IMAGES_DIR:-/app/uploads/images}
+      - UPLOAD_VIDEOS_DIR=${UPLOAD_VIDEOS_DIR:-/app/uploads/videos}
+      - APP_ENV=${APP_ENV:-production}
+      - CORS_ORIGINS=${CORS_ORIGINS:-["http://localhost","http://localhost:3000"]}
+
+  frontend:
+    build:
+      context: ./app/frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - INTERNAL_API_URL=http://backend:8000/api/v1
+    depends_on:
+      - backend
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  caddy_data:
+  caddy_config:
