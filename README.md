@@ -30,7 +30,7 @@ Cutesite is a fully containerized, production-ready web application designed for
 
 - **Backend**: Python (FastAPI) - High performance, easy to maintain.
 - **Frontend**: TypeScript (Next.js) - Server-side rendering, modern React patterns.
-- **Database**: PostgreSQL - Reliable relational data storage.
+- **Database**: SQLite - Lightweight file-based storage.
 - **Proxy**: Caddy - Automatic HTTPS and reverse proxying.
 - **Containerization**: Docker & Docker Compose - One-command deployment.
 
@@ -39,9 +39,9 @@ Cutesite is a fully containerized, production-ready web application designed for
 To run Cutesite effectively, ensure your system meets the following minimum requirements:
 
 - **OS**: Linux, macOS, or Windows (with WSL2)
-- **CPU**: 2 vCPUs recommended
-- **RAM**: 2GB minimum (4GB recommended)
-- **Disk Space**: 10GB free space (plus storage for uploads)
+- **CPU**: 1 vCPU minimum (2 vCPUs recommended)
+- **RAM**: 1GB minimum (2GB recommended)
+- **Disk Space**: 5GB free space (plus storage for uploads)
 - **Software**:
   - Docker Engine 20.10+
   - Docker Compose v2.0+
@@ -82,10 +82,31 @@ All settings are managed via the `.env` file.
 | `MAX_POSTS` | Maximum number of stored posts | 50 |
 | `MAX_VIDEO_SIZE_MB` | Max video file size in MB | 100 |
 | `MAX_VIDEO_DURATION_SECONDS` | Max video length in seconds | 60 |
-| `POSTGRES_USER` | Database username | postgres |
-| `POSTGRES_PASSWORD` | Database password | postgres |
-| `POSTGRES_DB` | Database name | cutesite |
-| `DATABASE_URL` | SQLAlchemy connection string | postgresql://... |
+| `DATABASE_URL` | SQLAlchemy connection string | sqlite:///./uploads/cutesite.db |
+| `BASE_URL` | Public base URL for file links | http://localhost |
+
+## 🌍 Deployment to a Domain
+
+1. **Prepare DNS**:
+   - Create an A record for your domain (and optional www) pointing to the server IP.
+
+2. **Update environment**:
+   - Set `DOMAIN` and `BASE_URL` in `.env`:
+     - `DOMAIN=example.com`
+     - `BASE_URL=https://example.com`
+   - Ensure ports 80 and 443 are open in the firewall.
+
+3. **Update Caddyfile**:
+   - Replace `:80` with your domain:
+     - `example.com { ... }`
+
+4. **Restart**:
+   ```bash
+   docker compose up -d --build
+   ```
+
+5. **Verify**:
+   - Open `https://example.com` and check that uploads open by direct links.
 
 ## 🛠️ Maintenance
 
