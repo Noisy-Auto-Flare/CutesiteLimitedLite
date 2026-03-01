@@ -15,6 +15,7 @@ COPY . .
 # But our api.ts uses runtime check or relative path.
 # However, next build might need it.
 ENV NEXT_TELEMETRY_DISABLED 1
+RUN mkdir -p public
 
 RUN npm run build
 
