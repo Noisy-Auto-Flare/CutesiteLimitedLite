@@ -101,12 +101,15 @@ export default function VideosPage() {
             </>
           }
         >
-          <video 
-            src={selectedVideo.url} 
-            controls 
-            autoPlay
-            className="max-w-full max-h-[85vh] rounded-lg shadow-2xl bg-black"
-          />
+          <div className="relative w-full h-full flex items-center justify-center">
+            <video 
+              src={getPublicUrl(selectedVideo.url)} 
+              controls 
+              autoPlay
+              playsInline
+              className="max-w-full max-h-[85vh] rounded-lg shadow-2xl bg-black"
+            />
+          </div>
         </Modal>
       )}
 
@@ -155,7 +158,7 @@ export default function VideosPage() {
             >
               <div className="aspect-video relative overflow-hidden bg-black/10 group">
                 <video 
-                  src={video.url} 
+                  src={getPublicUrl(video.url)} 
                   className="w-full h-full object-cover pointer-events-none"
                 />
                 <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-md z-10">
