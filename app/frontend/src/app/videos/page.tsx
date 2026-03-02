@@ -52,7 +52,11 @@ export default function VideosPage() {
       mutate()
     } catch (error: any) {
       console.error("Upload failed", error)
-      alert("Upload failed: " + (error.response?.data?.detail || error.message))
+      if (error.response?.status === 413) {
+        alert("File is too large for the server. Please check Nginx/Proxy settings (client_max_body_size).")
+      } else {
+        alert("Upload failed: " + (error.response?.data?.detail || error.message))
+      }
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ""
