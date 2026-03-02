@@ -38,10 +38,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Trusted hosts
+# Trusted hosts (fail-open in non-configured environments to avoid 400s)
 allowed_hosts = ["localhost", "127.0.0.1"]
-if settings.DOMAIN and settings.DOMAIN not in allowed_hosts:
-    allowed_hosts.append(settings.DOMAIN)
+parsed_base_host = None
+try:
+    # Lazy import to avoid hard dependency if unused
+    from urllib.parse import urlparse
+    parsed = urlparse(settings.BASE_URL or "")
+    if parsed.hostname:
+        parsed_base_host = parsed.hostname
+except Exception:
+    parsed_base_host = None
+
+if parsed_base_host and parsed_base_host not in allowed_hosts:
+    allowed_hosts.append(parsed_base_host)
+
+if settings.DOMAIN and settings.DOMAIN not in ["localhost", "127.0.0.1"]:
+    # Add apex and wildcard subdomains
+    if settings.DOMAIN not in allowed_hosts:
+        allowed_hosts.append(settings.DOMAIN)
+    wildcard = f"*.{settings.DOMAIN}"
+    if wildcard not in allowed_hosts:
+        allowed_hosts.append(wildcard)
+
+# If still only localhost and no domain configured, allow all to prevent false 400 in deployments
+if len(allowed_hosts) <= 2 and settings.DOMAIN in (None, "", "localhost"):
+    allowed_hosts = ["*"]
+
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 # Security headers
