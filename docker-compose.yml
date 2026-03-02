@@ -11,6 +11,8 @@ services:
       - UPLOAD_IMAGES_DIR=${UPLOAD_IMAGES_DIR:-/app/uploads/images}
       - UPLOAD_VIDEOS_DIR=${UPLOAD_VIDEOS_DIR:-/app/uploads/videos}
       - APP_ENV=${APP_ENV:-production}
+      - MAX_VIDEO_SIZE_MB=${MAX_VIDEO_SIZE_MB:-2048}
+      - MAX_VIDEO_DURATION_SECONDS=${MAX_VIDEO_DURATION_SECONDS:-600}
       - CORS_ORIGINS=${CORS_ORIGINS:-["http://localhost","http://localhost:3000"]}
 
   frontend:

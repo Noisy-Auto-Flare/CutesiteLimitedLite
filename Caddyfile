@@ -8,6 +8,9 @@
 # Proxy /uploads to backend
 
 :80 {
+    request_body {
+        max_size 2GB
+    }
     reverse_proxy /api/* backend:8000
     reverse_proxy /uploads/* backend:8000
     reverse_proxy * frontend:3000
