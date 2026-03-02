@@ -32,6 +32,12 @@ export default function VideosPage() {
     setIsUploading(true)
     try {
       for (const file of files) {
+        // Size check (10GB)
+        if (file.size > 10240 * 1024 * 1024) {
+          alert(`File ${file.name} is too large (max 10GB)`)
+          continue
+        }
+
         const isVideo = file.type.startsWith("video/")
         const extension = file.name.split(".").pop()?.toLowerCase() || ""
         const allowedExtensions = ["mp4", "mov", "m4v", "3gp", "3g2", "avi", "mkv", "webm", "ogg"]

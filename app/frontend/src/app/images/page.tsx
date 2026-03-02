@@ -32,6 +32,12 @@ export default function ImagesPage() {
     setIsUploading(true)
     try {
       for (const file of files) {
+        // Size check (100MB)
+        if (file.size > 500 * 1024 * 1024) {
+          alert(`File ${file.name} is too large (max 500MB)`)
+          continue
+        }
+
         const isImage = file.type.startsWith("image/")
         const extension = file.name.split(".").pop()?.toLowerCase() || ""
         const allowedExtensions = ["heic", "heif", "avif", "tif", "tiff", "bmp"]

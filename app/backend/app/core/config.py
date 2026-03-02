@@ -12,9 +12,10 @@ class Settings(BaseSettings):
     MAX_VIDEOS: int = 15
     MAX_POSTS: int = 50
 
-    MAX_VIDEO_SIZE_MB: int = 2048
-    MAX_VIDEO_DURATION_SECONDS: int = 600
-    MAX_POST_LENGTH: int = 10000
+    MAX_VIDEO_SIZE_MB: int = 10240  # 10GB
+    MAX_VIDEO_DURATION_SECONDS: int = 3600 # 1 hour
+    MAX_IMAGE_SIZE_MB: int = 500
+    MAX_POST_LENGTH: int = 50000
 
     UPLOAD_IMAGES_DIR: str = "uploads/images"
     UPLOAD_VIDEOS_DIR: str = "uploads/videos"
