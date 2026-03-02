@@ -1,10 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 import os
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.api.v1.api import api_router
 from app.core.config import settings
@@ -35,6 +37,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Trusted hosts
+allowed_hosts = ["localhost", "127.0.0.1"]
+if settings.DOMAIN and settings.DOMAIN not in allowed_hosts:
+    allowed_hosts.append(settings.DOMAIN)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
+
+# Security headers
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "no-referrer")
+        response.headers.setdefault("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
+        return response
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.include_router(api_router, prefix="/api/v1")
 

@@ -46,7 +46,14 @@ class ImageService:
         filepath = os.path.join(settings.UPLOAD_IMAGES_DIR, unique_filename)
 
         # 3. Save file
-        size = await save_upload_file(file, filepath)
+        size = await save_upload_file(file, filepath, settings.MAX_IMAGE_SIZE_MB * 1024 * 1024)
+        if size > settings.MAX_IMAGE_SIZE_MB * 1024 * 1024:
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail=f"Image exceeds maximum size of {settings.MAX_IMAGE_SIZE_MB}MB"
+            )
 
         # 4. Save to DB
         db_image = Image(

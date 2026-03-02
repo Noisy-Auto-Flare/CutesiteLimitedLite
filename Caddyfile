@@ -11,6 +11,13 @@
     request_body {
         max_size 10GB
     }
+    header {
+        -Server
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer"
+        Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    }
     reverse_proxy /api/* backend:8000
     reverse_proxy /uploads/* backend:8000
     reverse_proxy * frontend:3000

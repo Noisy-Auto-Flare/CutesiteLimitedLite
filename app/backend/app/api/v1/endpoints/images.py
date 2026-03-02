@@ -32,7 +32,7 @@ async def upload_image(
     except HTTPException as e:
         raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/", response_model=List[ImageSchema])
 def read_images(
