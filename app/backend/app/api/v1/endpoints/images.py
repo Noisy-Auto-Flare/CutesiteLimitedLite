@@ -26,8 +26,7 @@ async def upload_image(
 ):
     try:
         image = await ImageService.create_image(db, file)
-        base_url = get_public_base_url(request)
-        image.url = f"{base_url}/uploads/images/{image.filepath}"
+        image.url = f"/uploads/images/{image.filepath}"
         return image
     except HTTPException as e:
         raise e
@@ -42,9 +41,8 @@ def read_images(
     db: Session = Depends(get_db)
 ):
     images = ImageService.get_images(db, skip=skip, limit=limit)
-    base_url = get_public_base_url(request)
     for img in images:
-        img.url = f"{base_url}/uploads/images/{img.filepath}"
+        img.url = f"/uploads/images/{img.filepath}"
     return images
 
 @router.delete("/{image_id}", response_model=ImageSchema)
@@ -56,6 +54,5 @@ def delete_image(
     image = ImageService.delete_image(db, image_id)
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
-    base_url = get_public_base_url(request)
-    image.url = f"{base_url}/uploads/images/{image.filepath}"
+    image.url = f"/uploads/images/{image.filepath}"
     return image

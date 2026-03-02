@@ -26,8 +26,7 @@ async def upload_video(
 ):
     try:
         video = await VideoService.create_video(db, file)
-        base_url = get_public_base_url(request)
-        video.url = f"{base_url}/uploads/videos/{video.filepath}"
+        video.url = f"/uploads/videos/{video.filepath}"
         return video
     except HTTPException as e:
         raise e
@@ -42,9 +41,8 @@ def read_videos(
     db: Session = Depends(get_db)
 ):
     videos = VideoService.get_videos(db, skip=skip, limit=limit)
-    base_url = get_public_base_url(request)
     for vid in videos:
-        vid.url = f"{base_url}/uploads/videos/{vid.filepath}"
+        vid.url = f"/uploads/videos/{vid.filepath}"
     return videos
 
 @router.delete("/{video_id}", response_model=VideoSchema)
@@ -56,6 +54,5 @@ def delete_video(
     video = VideoService.delete_video(db, video_id)
     if not video:
         raise HTTPException(status_code=404, detail="Video not found")
-    base_url = get_public_base_url(request)
-    video.url = f"{base_url}/uploads/videos/{video.filepath}"
+    video.url = f"/uploads/videos/{video.filepath}"
     return video

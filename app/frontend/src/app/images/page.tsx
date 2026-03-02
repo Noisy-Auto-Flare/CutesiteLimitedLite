@@ -102,7 +102,7 @@ export default function ImagesPage() {
           }
         >
           <img 
-            src={selectedImage.url} 
+            src={getPublicUrl(selectedImage.url)} 
             alt={selectedImage.filename} 
             className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
           />
@@ -154,7 +154,7 @@ export default function ImagesPage() {
             >
               <div className="aspect-square relative overflow-hidden bg-secondary/30">
                 <img 
-                  src={image.url} 
+                  src={getPublicUrl(image.url)} 
                   alt={image.filename}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"
