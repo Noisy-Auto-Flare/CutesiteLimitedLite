@@ -7,7 +7,19 @@ from app.models.image import Image
 from app.core.config import settings
 from app.utils.file_ops import save_upload_file, delete_file
 
-ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+ALLOWED_MIME_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/heic",
+    "image/heif",
+    "image/heic-sequence",
+    "image/heif-sequence",
+    "image/avif",
+    "image/bmp",
+    "image/tiff"
+]
 
 class ImageService:
     @staticmethod

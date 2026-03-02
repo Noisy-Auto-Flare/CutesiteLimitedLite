@@ -9,7 +9,18 @@ from app.core.config import settings
 from app.utils.file_ops import save_upload_file, delete_file
 from moviepy.editor import VideoFileClip
 
-ALLOWED_VIDEO_MIME_TYPES = ["video/mp4", "video/webm", "video/ogg"]
+ALLOWED_VIDEO_MIME_TYPES = [
+    "video/mp4",
+    "video/webm",
+    "video/ogg",
+    "video/quicktime",
+    "video/x-m4v",
+    "video/3gpp",
+    "video/3gpp2",
+    "video/x-msvideo",
+    "video/avi",
+    "video/x-matroska"
+]
 
 class VideoService:
     @staticmethod

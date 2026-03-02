@@ -16,23 +16,34 @@ export default function VideosPage() {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    // MIME type check
-    if (!file.type.startsWith("video/")) {
-      alert("Please upload a video file")
-      return
+  const getPublicUrl = (url: string) => {
+    try {
+      const parsed = new URL(url, window.location.origin)
+      return `${window.location.origin}${parsed.pathname}`
+    } catch {
+      return url
     }
+  }
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
 
     setIsUploading(true)
-    const formData = new FormData()
-    formData.append("file", file)
-
     try {
-      await uploadApi.post("/videos/", formData)
-      mutate() // Refresh list
+      for (const file of files) {
+        const isVideo = file.type.startsWith("video/")
+        const extension = file.name.split(".").pop()?.toLowerCase() || ""
+        const allowedExtensions = ["mp4", "mov", "m4v", "3gp", "3g2", "avi", "mkv", "webm", "ogg"]
+        if (!isVideo && !allowedExtensions.includes(extension)) {
+          alert(`Unsupported video format: ${file.name}`)
+          continue
+        }
+        const formData = new FormData()
+        formData.append("file", file)
+        await uploadApi.post("/videos/", formData)
+      }
+      mutate()
     } catch (error: any) {
       console.error("Upload failed", error)
       alert("Upload failed: " + (error.response?.data?.detail || error.message))
@@ -55,7 +66,7 @@ export default function VideosPage() {
   }
 
   const handleShare = (url: string) => {
-    navigator.clipboard.writeText(url)
+    navigator.clipboard.writeText(getPublicUrl(url))
     alert("Link copied to clipboard!")
   }
 
@@ -68,7 +79,7 @@ export default function VideosPage() {
           onClose={() => setSelectedVideo(null)}
           actions={
             <>
-               <Button variant="secondary" size="icon" className="rounded-full bg-black/50 hover:bg-black/70 text-white border-0" onClick={() => window.open(selectedVideo.url, '_blank')}>
+               <Button variant="secondary" size="icon" className="rounded-full bg-black/50 hover:bg-black/70 text-white border-0" onClick={() => window.open(getPublicUrl(selectedVideo.url), '_blank')}>
                 <Download className="h-5 w-5" />
               </Button>
               <Button variant="secondary" size="icon" className="rounded-full bg-black/50 hover:bg-black/70 text-white border-0" onClick={() => handleShare(selectedVideo.url)}>
@@ -97,10 +108,11 @@ export default function VideosPage() {
         <div>
           <input
             type="file"
-            accept="video/*"
+            accept="video/*,.mov,.mp4,.m4v,.3gp,.3g2,.avi,.mkv,.webm,.ogg"
             className="hidden"
             ref={fileInputRef}
             onChange={handleUpload}
+            multiple
           />
           <Button 
             onClick={() => fileInputRef.current?.click()} 
@@ -147,7 +159,7 @@ export default function VideosPage() {
               </div>
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-2">
-                  <p className="font-medium truncate text-sm flex-1 mr-2" title={video.filename}>{video.filename}</p>
+                  <p className="font-medium truncate text-sm flex-1 mr-2" title={video.filename}>Видео</p>
                 </div>
                 <div className="flex justify-between items-center text-xs text-muted-foreground">
                   <span>{formatBytes(video.size)}</span>

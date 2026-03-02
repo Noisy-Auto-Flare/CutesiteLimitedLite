@@ -16,23 +16,34 @@ export default function ImagesPage() {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    // MIME type check
-    if (!file.type.startsWith("image/")) {
-      alert("Please upload an image file")
-      return
+  const getPublicUrl = (url: string) => {
+    try {
+      const parsed = new URL(url, window.location.origin)
+      return `${window.location.origin}${parsed.pathname}`
+    } catch {
+      return url
     }
+  }
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
 
     setIsUploading(true)
-    const formData = new FormData()
-    formData.append("file", file)
-
     try {
-      await uploadApi.post("/images/", formData)
-      mutate() // Refresh list
+      for (const file of files) {
+        const isImage = file.type.startsWith("image/")
+        const extension = file.name.split(".").pop()?.toLowerCase() || ""
+        const allowedExtensions = ["heic", "heif", "avif", "tif", "tiff", "bmp"]
+        if (!isImage && !allowedExtensions.includes(extension)) {
+          alert(`Unsupported image format: ${file.name}`)
+          continue
+        }
+        const formData = new FormData()
+        formData.append("file", file)
+        await uploadApi.post("/images/", formData)
+      }
+      mutate()
     } catch (error: any) {
       console.error("Upload failed", error)
       alert("Upload failed: " + (error.response?.data?.detail || error.message))
@@ -55,7 +66,7 @@ export default function ImagesPage() {
   }
 
   const handleShare = (url: string) => {
-    navigator.clipboard.writeText(url)
+    navigator.clipboard.writeText(getPublicUrl(url))
     alert("Link copied to clipboard!")
   }
 
@@ -68,7 +79,7 @@ export default function ImagesPage() {
           onClose={() => setSelectedImage(null)}
           actions={
             <>
-               <Button variant="secondary" size="icon" className="rounded-full bg-black/50 hover:bg-black/70 text-white border-0" onClick={() => window.open(selectedImage.url, '_blank')}>
+               <Button variant="secondary" size="icon" className="rounded-full bg-black/50 hover:bg-black/70 text-white border-0" onClick={() => window.open(getPublicUrl(selectedImage.url), '_blank')}>
                 <Download className="h-5 w-5" />
               </Button>
               <Button variant="secondary" size="icon" className="rounded-full bg-black/50 hover:bg-black/70 text-white border-0" onClick={() => handleShare(selectedImage.url)}>
@@ -96,10 +107,11 @@ export default function ImagesPage() {
         <div>
           <input
             type="file"
-            accept="image/*"
+            accept="image/*,.heic,.heif,.avif,.tif,.tiff,.bmp"
             className="hidden"
             ref={fileInputRef}
             onChange={handleUpload}
+            multiple
           />
           <Button 
             onClick={() => fileInputRef.current?.click()} 
@@ -142,7 +154,7 @@ export default function ImagesPage() {
                 </div>
               </div>
               <CardContent className="p-3">
-                <p className="font-medium truncate text-sm" title={image.filename}>{image.filename}</p>
+                <p className="font-medium truncate text-sm" title={image.filename}>Фото</p>
                 <div className="flex justify-between items-center mt-1 text-xs text-muted-foreground">
                   <span>{formatBytes(image.size)}</span>
                   <span>{formatDate(image.created_at)}</span>
